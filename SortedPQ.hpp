@@ -60,7 +60,7 @@ public:
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
         // TODO: Implement this function
-        auto it = lowerbound(data.begin(), data.end(), val, COMP_FUNCTOR());
+        auto it = lowerbound(data.begin(), data.end(), val, this->compare);
         data.insert(it, val);
     }  // push()
 
@@ -105,7 +105,7 @@ public:
     // Runtime: O(n log n)
     virtual void updatePriorities() {
         // TODO: Implement this function
-        sort(data.begin(), data.end(), COMP_FUNCTOR());
+        sort(data.begin(), data.end(), this->compare);
     }  // updatePriorities()
 
 
