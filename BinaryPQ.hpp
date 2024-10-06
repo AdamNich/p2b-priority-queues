@@ -29,9 +29,9 @@ public:
     template<typename InputIterator>
     BinaryPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
         : BaseClass { comp } {
-        // TODO: Implement this function
-        (void)start;  // Delete this line when you implement this function
-        (void)end;  // Delete this line when you implement this function
+        resize(distance(start, end), 0);
+        copy(start, end, data.begin());
+        updatePriorities();
     }  // BinaryPQ
 
 
@@ -56,15 +56,15 @@ public:
     //              'rebuilds' the heap by fixing the heap invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        // TODO: Implement this function.
+        for (int i = (data.size() - 2) / 2; i >= 0; --i) fixDown(i);
     }  // updatePriorities()
-
+    // *2 + 1 for left child
 
     // Description: Add a new element to the PQ.
     // Runtime: O(log(n))
     virtual void push(const TYPE &val) {
-        // TODO: Implement this function.
-        (void)val;  // Delete this line when you implement this function
+        data.push_back(val);
+        fixUp(data.size() - 1);
     }  // push()
 
 
@@ -76,6 +76,9 @@ public:
     // Runtime: O(log(n))
     virtual void pop() {
         // TODO: Implement this function.
+        data[0] = data[data.size() - 1];
+        data.pop_back();
+        fixDown(1);
     }  // pop()
 
 
@@ -86,10 +89,7 @@ public:
     // Runtime: O(1)
     virtual const TYPE &top() const {
         // TODO: Implement this function.
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp;  // TODO: Delete this line
-        return temp;  // TODO: Delete or change this line
+        return data[0];  // TODO: Delete or change this line
     }  // top()
 
 
@@ -98,7 +98,7 @@ public:
     [[nodiscard]] virtual std::size_t size() const {
         // TODO: Implement this function. Might be very simple,
         // depending on your implementation.
-        return 0;  // TODO: Delete or change this line
+        return data.size();  // TODO: Delete or change this line
     }  // size()
 
 
@@ -107,7 +107,7 @@ public:
     [[nodiscard]] virtual bool empty() const {
         // TODO: Implement this function. Might be very simple,
         // depending on your implementation.
-        return true;  // TODO: Delete or change this line
+        return data.empty();  // TODO: Delete or change this line
     }  // empty()
 
 
@@ -120,6 +120,23 @@ private:
 
     // TODO: Add any additional member functions you require here.
     //       For instance, you might add fixUp() and fixDown().
+    void fixUp(int i) {
+        while (i != 0 && this->compare(data[(i-1)/2], data[i])) {
+            swap(data[(i-1)/2], data[i]);
+            i = (i - 1) / 2;
+        }
+    }
+
+    void fixDown(int i) {
+        while (2*i + 1 < data.size()) {
+            int max = 2*i + 1;
+            if (2*i + 2 < data.size() && this->compare(data[2*i + 1], data[2*i + 2])) max = 2*i + 2;
+            //inverting so it doesn't swap if data[i] == data[max];
+            if (!this->compare(data[i], data[max])) return;
+            swap(data[i], data[max]);
+            i = max;
+        }
+    }
 };  // BinaryPQ
 
 
