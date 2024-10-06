@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Eecs281PQ.hpp"
+using namespace std;
 
 // A specialized version of the priority queue ADT that is implemented with an
 // underlying sorted array-based container.
@@ -32,10 +33,9 @@ public:
     // Runtime: O(n log n) where n is number of elements in range.
     template<typename InputIterator>
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
+        : BaseClass { comp }, data {start, end} {
         // TODO: Implement this function
-        (void)start;  // Delete this line when you implement this function
-        (void)end;  // Delete this line when you implement this function
+        sort(data.begin(), data.end(), comp);
     }  // SortedPQ
 
 
@@ -60,7 +60,8 @@ public:
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
         // TODO: Implement this function
-        (void)val;  // Delete this line when you implement this function
+        auto it = lowerbound(data.begin(), data.end(), val, COMP_FUNCTOR());
+        data.insert(it, val);
     }  // push()
 
 
@@ -72,6 +73,7 @@ public:
     // Runtime: Amortized O(1)
     virtual void pop() {
         // TODO: Implement this function
+        data.pop_back();
     }  // pop()
 
 
@@ -82,10 +84,7 @@ public:
     // Runtime: O(1)
     virtual const TYPE &top() const {
         // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp;  // TODO: Delete this line
-        return temp;  // TODO: Delete or change this line
+        return data[data.size() - 1];
     }  // top()
 
 
@@ -106,6 +105,7 @@ public:
     // Runtime: O(n log n)
     virtual void updatePriorities() {
         // TODO: Implement this function
+        sort(data.begin(), data.end(), COMP_FUNCTOR());
     }  // updatePriorities()
 
 
