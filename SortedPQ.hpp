@@ -35,7 +35,7 @@ public:
     SortedPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
         : BaseClass { comp }, data {start, end} {
         // TODO: Implement this function
-        sort(data.begin(), data.end(), comp);
+        sort(data.begin(), data.end(), this->compare);
     }  // SortedPQ
 
 
