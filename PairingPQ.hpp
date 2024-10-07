@@ -87,7 +87,7 @@ public:
             //maybe .front()? is it better?
             if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
             if (dq.back()->child != nullptr) dq.push_back(dq.back()->child);
-            push(dq.back());
+            push(dq.back()->elt);
             dq.pop_back();
         }
     }  // PairingPQ()
@@ -135,7 +135,8 @@ public:
     // Runtime: O(n)
     virtual void updatePriorities() {
         // TODO: Implement this function.
-
+        deque<Node*> dq;
+        dq
     }  // updatePriorities()
 
 
@@ -156,6 +157,7 @@ public:
     // Runtime: Amortized O(log(n))
     virtual void pop() {
         // TODO: Implement this function.
+        --n;
         deque<Node*> dq;
         dq.push_back(root->child);
         delete root;
@@ -190,14 +192,14 @@ public:
     // Runtime: O(1)
     [[nodiscard]] virtual std::size_t size() const {
         // TODO: Implement this function
-        return 0;  // TODO: Delete or change this line
+        return n;
     }  // size()
 
     // Description: Return true if the pairing heap is empty.
     // Runtime: O(1)
     [[nodiscard]] virtual bool empty() const {
         // TODO: Implement this function
-        return true;  // TODO: Delete or change this line
+        return n == 0;
     }  // empty()
 
 
@@ -223,10 +225,11 @@ public:
     //       be sure to never move or copy/delete that node in the future,
     //       until it is eliminated by the user calling pop(). Remember this
     //       when you implement updateElt() and updatePriorities().
-    Node *(const TYPE &val) {
+    Node *addnode(const TYPE &val) {
         // TODO: Implement this function
-        (void)val;  // Delete this line when you implement this function
-        return nullptr;  // TODO: Delete or change this line
+        ++n;
+        Node *a = new Node(val, nullptr, nullptr, nullptr);
+        root = meld(a, root);
     }  // addNode()
 
 
