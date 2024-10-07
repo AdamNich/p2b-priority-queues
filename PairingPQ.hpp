@@ -171,6 +171,7 @@ public:
             dq.pop_front();
             Node *b = dq.front();
             dq.pop_front();
+            a->parent = b->parent = a->sibling = b->sibling = nullptr;
             dq.push_back(meld(a,b));
         }
         root = dq[0];
@@ -248,7 +249,18 @@ private:
     //       as needed.
     //pa & pb have no parent & no previous  
     Node *meld(Node *pa, Node *pb) {
-
+        //need to go back and make sure arguments have no parent or sibling
+        if (this->compare(pa->elt, pb->elt)) {
+            pa->sibling = pb->child;
+            pa->parent = pb;
+            pb->child = pa;
+            return pb;
+        } else {
+            pb->sibling = pa->child;
+            pb->parent = pa;
+            pa->child = pb;
+            return pa;
+        }
     }
 };
 
