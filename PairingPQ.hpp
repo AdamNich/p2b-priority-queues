@@ -24,6 +24,9 @@ public:
         explicit Node(const TYPE &val)
             : elt { val } {}
 
+        explicit Node(const TYPE &val, Node* c, Node* s, Node* p)
+            : elt { val }, child(c), sibling(s), parent(p) {}
+
         // Description: Allows access to the element at that Node's position.
         //              There are two versions, getElt() and a dereference
         //              operator, use whichever one seems more natural to you.
@@ -42,6 +45,7 @@ public:
         Node *child = nullptr;
         Node *sibling = nullptr;
         // TODO: Add and initialize one extra pointer (parent or previous) as desired.
+        Node *parent
     };  // Node
 
 
@@ -49,8 +53,7 @@ public:
     //              comparison functor.
     // Runtime: O(1)
     explicit PairingPQ(COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
-        // TODO: Implement this function.
+        : BaseClass { comp }, n(0), root(nullptr) {
     }  // PairingPQ()
 
 
@@ -59,20 +62,34 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     PairingPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
+        : BaseClass { comp }, n(distance(start, end)), root(nullptr) {
         // TODO: Implement this function.
-        (void)start;  // Delete this line when you implement this function
-        (void)end;  // Delete this line when you implement this function
+        if (n == 0) return;
+        root = new Node(*start, nullptr, nullptr, nullptr, nullptr);
+        ++start;
+        while (start != end) push(*(start++));
     }  // PairingPQ()
 
 
     // Description: Copy constructor.
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other)
-        : BaseClass { other.compare } {
+        : BaseClass { other.compare }, n(other.n) {
         // TODO: Implement this function.
         // NOTE: The structure does not have to be identical to the original,
         //       but it must still be a valid pairing heap.
+        if (other.empty()) return;
+        root = new Node(other.root->elt, nullptr, nullptr, nullptr);
+        deque<Node*> dq;
+        dq.push_back(root->child);
+        dq.push_back(root->sibling);
+        while (!dq.empty()) {
+            //maybe .front()? is it better?
+            if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
+            if (dq.back()->child != nullptr) dq.push_back(dq.back()->child);
+            push(dq.back());
+            dq.pop_back();
+        }
     }  // PairingPQ()
 
 
@@ -82,16 +99,26 @@ public:
         // TODO: Implement this function.
         // HINT: Use the copy-swap method from the "Arrays and Containers"
         // lecture.
-        (void)rhs;  // Delete this line when you implement this function
+        PairingPQ temp(rhs);
+        n = temp.n;
+        root = temp.root;
         return *this;
     }  // operator=()
 
 
     // Description: Destructor
     // Runtime: O(n)
-    ~PairingPQ() {
+    ~PairingPQ() { 
         // TODO: Implement this function.
-        ;  // Delete this line, it prevents linter complaints
+        deque<Node*> dq;
+        dq.push_back(&other.top());
+        while (!dq.empty()) {
+            //maybe .front()? is it better?
+            if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
+            if (dq.back()->child != nullptr) dq.push_back(dq.back()->child);
+            delete dq.back();
+            dq.pop_back();
+        }
     }  // ~PairingPQ()
 
 
@@ -108,6 +135,7 @@ public:
     // Runtime: O(n)
     virtual void updatePriorities() {
         // TODO: Implement this function.
+
     }  // updatePriorities()
 
 
@@ -128,6 +156,22 @@ public:
     // Runtime: Amortized O(log(n))
     virtual void pop() {
         // TODO: Implement this function.
+        deque<Node*> dq;
+        dq.push_back(root->child);
+        delete root;
+        //just in case the root has no children, so the root becomes nullptr
+        root = dq[0];
+        if (dq[0] == nullptr) return;
+        dq[0]->parent = nullptr;
+        while (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
+        while (dq.size() > 1) {
+            Node *a = dq.front();
+            dq.pop_front();
+            Node *b = dq.front();
+            dq.pop_front();
+            dq.push_back(meld(a,b));
+        }
+        root = dq[0];
     }  // pop()
 
 
@@ -138,11 +182,7 @@ public:
     //              extreme element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        // TODO: Implement this function
-
-        // These lines are present only so that this provided file compiles.
-        static TYPE temp;  // TODO: Delete this line
-        return temp;  // TODO: Delete or change this line
+        return root->elt
     }  // top()
 
 
@@ -183,7 +223,7 @@ public:
     //       be sure to never move or copy/delete that node in the future,
     //       until it is eliminated by the user calling pop(). Remember this
     //       when you implement updateElt() and updatePriorities().
-    Node *addNode(const TYPE &val) {
+    Node *(const TYPE &val) {
         // TODO: Implement this function
         (void)val;  // Delete this line when you implement this function
         return nullptr;  // TODO: Delete or change this line
@@ -196,10 +236,17 @@ private:
     // TODO: We recommend creating a 'meld' function (see the Pairing Heap
     // papers).
 
+    int n;
+    int *root;
+
     // NOTE: For member variables, you are only allowed to add a "root
     //       pointer" and a "count" of the number of nodes. Anything else
     //       (such as a deque) should be declared inside of member functions
     //       as needed.
+    //pa & pb have no parent & no previous  
+    Node *meld(Node *pa, Node *pb) {
+
+    }
 };
 
 
