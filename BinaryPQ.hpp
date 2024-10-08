@@ -77,7 +77,7 @@ public:
         // TODO: Implement this function.
         data[0] = data[data.size() - 1];
         data.pop_back();
-        fixDown((size_t) 1);
+        fixDown((size_t) 0);
     }  // pop()
 
 

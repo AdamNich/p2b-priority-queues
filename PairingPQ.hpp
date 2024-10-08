@@ -63,11 +63,10 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     PairingPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp }, n((size_t) (start - end)), root(nullptr) {
+        : BaseClass { comp }, n(0), root(nullptr) {
         // TODO: Implement this function.
-        if (n == 0) return;
+        if (start == end) return;
         root = new Node(*start, nullptr, nullptr, nullptr);
-        ++start;
         while (start != end) push(*(start++));
     }  // PairingPQ()
 
@@ -75,20 +74,24 @@ public:
     // Description: Copy constructor.
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other)
-        : BaseClass { other.compare }, n(other.n), root(nullptr) {
+        : BaseClass { other.compare }, n(0), root(nullptr) {
         // TODO: Implement this function.
         // NOTE: The structure does not have to be identical to the original,
         //       but it must still be a valid pairing heap.
         if (other.empty()) return;
-        root = new Node(other.root->elt, nullptr, nullptr, nullptr);
+        // root = new Node(other.root->elt, nullptr, nullptr, nullptr);
         deque<Node*> dq;
-        dq.push_back(root);
+        dq.push_back(other.root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
-            if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
-            if (dq.back()->child != nullptr) dq.push_back(dq.back()->child);
-            push(dq.back()->elt);
-            dq.pop_back();
+            if (dq.front()->sibling != nullptr) {
+                dq.push_back(dq.front()->sibling);
+            }
+            if (dq.front()->child != nullptr) {
+                dq.push_back(dq.front()->child);
+            }
+            push(dq.front()->elt);
+            dq.pop_front();
         }
     }  // PairingPQ()
 
@@ -100,8 +103,8 @@ public:
         // HINT: Use the copy-swap method from the "Arrays and Containers"
         // lecture.
         PairingPQ temp(rhs);
-        n = temp.n;
-        root = temp.root;
+        std::swap(n, temp.n);
+        std::swap(root, temp.root);
         return *this;
     }  // operator=()
 
@@ -111,11 +114,18 @@ public:
     ~PairingPQ() { 
         // TODO: Implement this function.
         deque<Node*> dq;
+        if (root == nullptr) return;
         dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
-            if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
-            if (dq.back()->child != nullptr) dq.push_back(dq.back()->child);
+            if (dq.back()->sibling != nullptr) {
+                dq.push_back(dq.back()->sibling);
+                dq[dq.size() - 2]->sibling = nullptr;
+            }
+            if (dq.back()->child != nullptr) {
+                dq.push_back(dq.back()->child);
+                dq[dq.size() - 2]->child = nullptr;
+            }
             delete dq.back();
             dq.pop_back();
         }
@@ -140,12 +150,18 @@ public:
         dq.push_back(root->child);
         root->child = nullptr;
         while (!dq.empty()) {
-            if (dq[0]->child != nullptr) dq.push_back(dq[0]->child);
-            if (dq[0]->sibling != nullptr) dq.push_back(dq[0]->sibling);
-            dq[0]->parent = dq[0]->sibling = dq[0]->child = nullptr;
+            if (dq.front()->child != nullptr) {
+                dq.push_back(dq.front()->child);
+                dq.front()->child = nullptr;
+            }
+            if (dq.front()->sibling != nullptr) {
+                dq.push_back(dq.front()->sibling);
+                dq.front()->sibling = nullptr;
+            }
+            dq.front()->parent = nullptr;
             root = meld(dq.front(), root);
             dq.pop_front();
-        } while (!dq.empty());
+        }
     }  // updatePriorities()
 
 
@@ -177,10 +193,9 @@ public:
         while (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
         while (dq.size() > 1) {
             dq[0]->parent = dq[1]->parent = dq[0]->sibling = dq[1]->sibling = nullptr;
-            Node *a = meld(dq[0], dq[1]);
+            dq.push_back(meld(dq[0], dq[1]));
             dq.pop_front();
             dq.pop_front();
-            dq.push_back(a);
         }
         root = dq[0];
     }  // pop()
@@ -220,7 +235,7 @@ public:
     //              extreme (as defined by comp) than the old priority.
     //
     // Runtime: As discussed in reading material.
-    void updateElt(Node *node, const TYPE &new_value) {
+    void updateElt(Node* node, const TYPE &new_value) {
         // TODO: Implement this function
         node->elt = new_value;
         if (node == root) return;
@@ -249,7 +264,8 @@ public:
         // TODO: Implement this function
         ++n;
         Node *a = new Node(val, nullptr, nullptr, nullptr);
-        root = meld(a, root);
+        if (n == 1) root = a;
+        else root = meld(a, root);
         return a;
     }  // addNode()
 
@@ -269,7 +285,6 @@ private:
     //       as needed.
     //pa & pb have no parent & no previous  
     Node *meld(Node *pa, Node *pb) {
-        //need to go back and make sure arguments have no parent or sibling
         if (this->compare(pa->elt, pb->elt)) {
             pa->sibling = pb->child;
             pa->parent = pb;

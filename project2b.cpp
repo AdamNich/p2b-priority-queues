@@ -75,7 +75,7 @@ void testPrimitiveOperations() {
     std::cout << "Testing primitive priority queue operations..." << std::endl;
 
     PQ<int> pq {};
-    Eecs281PQ<int> &eecsPQ = pq;
+    Eecs281PQ<int> & eecsPQ = pq;
 
     eecsPQ.push(3);
     eecsPQ.push(4);
@@ -92,6 +92,30 @@ void testPrimitiveOperations() {
     assert(eecsPQ.empty());
 
     // TODO: Add more testing here!
+    vector<int> v;
+    UnorderedPQ<int> upq1;
+    PQ<int> pq1;
+    for (int i = 0; i < 100; ++i) {
+        v.push_back(rand() % 100);
+        pq1.push(i);
+        upq1.push(i);
+    }
+    UnorderedPQ<int> upq2(v.begin(), v.end());
+    PQ<int> pq2(v.begin(), v.end());
+    for (int i = 0; i < 100; ++i) {
+        assert(pq1.top() == upq1.top());
+        assert(pq1.size() == upq1.size());
+        assert(pq2.top() == upq2.top());
+        assert(pq2.size() == upq2.size());
+        pq1.pop();
+        pq2.pop();
+        upq1.pop();
+        upq2.pop();
+    }
+    assert(upq1.empty());
+    assert(upq2.empty());
+    assert(pq1.empty());
+    assert(pq2.empty());
 
     std::cout << "testPrimitiveOperations succeeded!" << std::endl;
 }
@@ -151,6 +175,37 @@ void testUpdatePriorities() {
     assert(eecsPQ.top() == &datum);
 
     // TODO: Add more testing here as you see fit.
+}
+
+void testUpdateElt() {
+    PairingPQ<int> pq;
+    pq.push(2);
+    pq.push(8);
+    pq.push(16);
+    PairingPQ<int>::Node *a = pq.addNode(4);
+    PairingPQ<int>::Node *b = pq.addNode(1);
+    // 
+    // 5 4 8
+    //     2
+    pq.updateElt(a, 5);
+    assert(pq.size() == 5);
+    assert(pq.top() == 16);
+    pq.pop();
+    // 8
+    // 10 2
+    // 4
+    assert(pq.top() == 8);
+    pq.updateElt(b, 10);
+    assert(pq.size() == 4);
+    assert(pq.top() == 10);
+    pq.pop();
+    assert(pq.top() == 8);
+    pq.pop();
+    assert(pq.top() == 5);
+    pq.pop();
+    assert(pq.top() == 2);
+    pq.pop();
+    assert(pq.empty());
 }
 
 
@@ -221,6 +276,7 @@ void testPriorityQueue<PairingPQ>() {
     testPrimitiveOperations<PairingPQ>();
     testHiddenData<PairingPQ>();
     testUpdatePriorities<PairingPQ>();
+    testUpdateElt();
     testPairing();
 }
 
@@ -247,7 +303,7 @@ int main() {
 
     std::cout << "Testing the " << pqType << " PQ...";
 
-    // TODO: Add more cases to test other priority queue types.
+    //TODO: Add more cases to test other priority queue types.
     switch (pqType) {
     case PQType::Unordered:
         testPriorityQueue<UnorderedPQ>();
