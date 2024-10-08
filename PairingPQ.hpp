@@ -81,8 +81,7 @@ public:
         if (other.empty()) return;
         root = new Node(other.root->elt, nullptr, nullptr, nullptr);
         deque<Node*> dq;
-        dq.push_back(root->child);
-        dq.push_back(root->sibling);
+        dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
             if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
@@ -135,8 +134,18 @@ public:
     // Runtime: O(n)
     virtual void updatePriorities() {
         // TODO: Implement this function.
+        if (n == 0 || n == 1) return;
         deque<Node*> dq;
-        dq
+        dq->child = nullptr;
+        dq.push_back(root->child);
+        while (!dq.empty()) {
+            if (dq[0]->child != nullptr) dq.push_back(dq[0]->child);
+            if (dq[0]->sibling != nullptr) dq.push_back(dq[0]->sibling);
+            dq[0]->parent = dq[0]->sibling = dq[0]->child = nullptr;
+            root = meld(dq.front(), root);
+            dq.pop_front();
+            dq.push_back(a);
+        } while (!dq.empty());
     }  // updatePriorities()
 
 
@@ -164,15 +173,14 @@ public:
         //just in case the root has no children, so the root becomes nullptr
         root = dq[0];
         if (dq[0] == nullptr) return;
-        dq[0]->parent = nullptr;
+        // dq[0]->parent = nullptr;
         while (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
         while (dq.size() > 1) {
-            Node *a = dq.front();
+            dq[0]->parent = dq[1]->parent = dq[0]->sibling = dq[1]->sibling = nullptr;
+            Node *a = meld(dq[0], dq[1]);
             dq.pop_front();
-            Node *b = dq.front();
             dq.pop_front();
-            a->parent = b->parent = a->sibling = b->sibling = nullptr;
-            dq.push_back(meld(a,b));
+            dq.push_back(a);
         }
         root = dq[0];
     }  // pop()
@@ -214,8 +222,19 @@ public:
     // Runtime: As discussed in reading material.
     void updateElt(Node *node, const TYPE &new_value) {
         // TODO: Implement this function
-        (void)node;  // Delete this line when you implement this function
-        (void)new_value;  // Delete this line when you implement this func
+        node->elt = new_value;
+        if (node == root) return;
+        Node *parent = node->parent;
+        node->parent = nullptr;
+        if (parent->child == node) {
+            parent->child = node->sibling;
+        } else {
+            Node *leftSibling = parent->child;
+            while (leftSibling->sibling != node) leftSibling = leftSibling->sibling;
+            leftSibling->sibling = node->sibling;
+        }
+        node->sibling = nullptr;
+        root = meld(node, root);
     }  // updateElt()
 
 
@@ -231,6 +250,7 @@ public:
         ++n;
         Node *a = new Node(val, nullptr, nullptr, nullptr);
         root = meld(a, root);
+        return a;
     }  // addNode()
 
 
