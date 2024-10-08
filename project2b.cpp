@@ -252,7 +252,14 @@ int main() {
     case PQType::Unordered:
         testPriorityQueue<UnorderedPQ>();
         break;
+    case PQType::Binary:
+        testPriorityQueue<BinaryPQ>();
+        break;
+    case PQType::Pairing:
+        testPriorityQueue<PairingPQ>();
+        break;
     default:
+
         std::cout << "Unrecognized PQ type " << pqType << " in main.\n"
                   << "You must add tests for all PQ types." << std::endl;
         return 1;

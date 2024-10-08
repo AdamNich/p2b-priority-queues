@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "Eecs281PQ.hpp"
-using namespace std;
+using std::vector;
 
 // A specialized version of the priority queue ADT that is implemented with an
 // underlying sorted array-based container.
@@ -60,7 +60,8 @@ public:
     // Runtime: O(n)
     virtual void push(const TYPE &val) {
         // TODO: Implement this function
-        auto it = lowerbound(data.begin(), data.end(), val, this->compare);
+        //to investigate: why do I need auto here?
+        auto it = lower_bound(data.begin(), data.end(), val, this->compare);
         data.insert(it, val);
     }  // push()
 

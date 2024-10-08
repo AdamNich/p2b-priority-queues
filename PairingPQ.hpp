@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "Eecs281PQ.hpp"
+using namespace std;
 
 // A specialized version of the priority queue ADT implemented as a pairing
 // heap.
@@ -45,7 +46,7 @@ public:
         Node *child = nullptr;
         Node *sibling = nullptr;
         // TODO: Add and initialize one extra pointer (parent or previous) as desired.
-        Node *parent
+        Node *parent;
     };  // Node
 
 
@@ -62,10 +63,10 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     PairingPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp }, n(distance(start, end)), root(nullptr) {
+        : BaseClass { comp }, n((size_t) (start - end)), root(nullptr) {
         // TODO: Implement this function.
         if (n == 0) return;
-        root = new Node(*start, nullptr, nullptr, nullptr, nullptr);
+        root = new Node(*start, nullptr, nullptr, nullptr);
         ++start;
         while (start != end) push(*(start++));
     }  // PairingPQ()
@@ -74,7 +75,7 @@ public:
     // Description: Copy constructor.
     // Runtime: O(n)
     PairingPQ(const PairingPQ &other)
-        : BaseClass { other.compare }, n(other.n) {
+        : BaseClass { other.compare }, n(other.n), root(nullptr) {
         // TODO: Implement this function.
         // NOTE: The structure does not have to be identical to the original,
         //       but it must still be a valid pairing heap.
@@ -110,7 +111,7 @@ public:
     ~PairingPQ() { 
         // TODO: Implement this function.
         deque<Node*> dq;
-        dq.push_back(&other.top());
+        dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
             if (dq.back()->sibling != nullptr) dq.push_back(dq.back()->sibling);
@@ -136,15 +137,14 @@ public:
         // TODO: Implement this function.
         if (n == 0 || n == 1) return;
         deque<Node*> dq;
-        dq->child = nullptr;
         dq.push_back(root->child);
+        root->child = nullptr;
         while (!dq.empty()) {
             if (dq[0]->child != nullptr) dq.push_back(dq[0]->child);
             if (dq[0]->sibling != nullptr) dq.push_back(dq[0]->sibling);
             dq[0]->parent = dq[0]->sibling = dq[0]->child = nullptr;
             root = meld(dq.front(), root);
             dq.pop_front();
-            dq.push_back(a);
         } while (!dq.empty());
     }  // updatePriorities()
 
@@ -193,7 +193,7 @@ public:
     //              extreme element.
     // Runtime: O(1)
     virtual const TYPE &top() const {
-        return root->elt
+        return root->elt;
     }  // top()
 
 
@@ -245,7 +245,7 @@ public:
     //       be sure to never move or copy/delete that node in the future,
     //       until it is eliminated by the user calling pop(). Remember this
     //       when you implement updateElt() and updatePriorities().
-    Node *addnode(const TYPE &val) {
+    Node *addNode(const TYPE &val) {
         // TODO: Implement this function
         ++n;
         Node *a = new Node(val, nullptr, nullptr, nullptr);
@@ -260,8 +260,8 @@ private:
     // TODO: We recommend creating a 'meld' function (see the Pairing Heap
     // papers).
 
-    int n;
-    int *root;
+    size_t n;
+    Node *root;
 
     // NOTE: For member variables, you are only allowed to add a "root
     //       pointer" and a "count" of the number of nodes. Anything else

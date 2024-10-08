@@ -28,8 +28,7 @@ public:
     // Runtime: O(n) where n is number of elements in range.
     template<typename InputIterator>
     BinaryPQ(InputIterator start, InputIterator end, COMP_FUNCTOR comp = COMP_FUNCTOR())
-        : BaseClass { comp } {
-        resize(distance(start, end), 0);
+        : BaseClass { comp }, data{start, end} {
         copy(start, end, data.begin());
         updatePriorities();
     }  // BinaryPQ
@@ -56,7 +55,7 @@ public:
     //              'rebuilds' the heap by fixing the heap invariant.
     // Runtime: O(n)
     virtual void updatePriorities() {
-        for (int i = (data.size() - 2) / 2; i >= 0; --i) fixDown(i);
+        for (int64_t i = ((int64_t) data.size() - 2) / 2; i >= 0; --i) fixDown((size_t) i);
     }  // updatePriorities()
     // *2 + 1 for left child
 
@@ -64,7 +63,7 @@ public:
     // Runtime: O(log(n))
     virtual void push(const TYPE &val) {
         data.push_back(val);
-        fixUp(data.size() - 1);
+        fixUp(data.size() - (size_t) 1);
     }  // push()
 
 
@@ -78,7 +77,7 @@ public:
         // TODO: Implement this function.
         data[0] = data[data.size() - 1];
         data.pop_back();
-        fixDown(1);
+        fixDown((size_t) 1);
     }  // pop()
 
 
@@ -120,20 +119,20 @@ private:
 
     // TODO: Add any additional member functions you require here.
     //       For instance, you might add fixUp() and fixDown().
-    void fixUp(int i) {
+    void fixUp(size_t i) {
         while (i != 0 && this->compare(data[(i-1)/2], data[i])) {
-            swap(data[(i-1)/2], data[i]);
+            std::swap(data[(i-1)/2], data[i]);
             i = (i - 1) / 2;
         }
     }
 
-    void fixDown(int i) {
+    void fixDown(size_t i) {
         while (2*i + 1 < data.size()) {
-            int max = 2*i + 1;
+            size_t max = 2*i + 1;
             if (2*i + 2 < data.size() && this->compare(data[2*i + 1], data[2*i + 2])) max = 2*i + 2;
             //inverting so it doesn't swap if data[i] == data[max];
             if (!this->compare(data[i], data[max])) return;
-            swap(data[i], data[max]);
+            std::swap(data[i], data[max]);
             i = max;
         }
     }
