@@ -66,7 +66,7 @@ public:
         : BaseClass { comp }, n(0), root(nullptr) {
         // TODO: Implement this function.
         if (start == end) return;
-        root = new Node(*start, nullptr, nullptr, nullptr);
+        // root = new Node(*start, nullptr, nullptr, nullptr);
         while (start != end) push(*(start++));
     }  // PairingPQ()
 
@@ -118,16 +118,16 @@ public:
         dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
-            if (dq.back()->sibling != nullptr) {
-                dq.push_back(dq.back()->sibling);
-                dq[dq.size() - 2]->sibling = nullptr;
+            if (dq.front()->sibling != nullptr) {
+                dq.push_back(dq.front()->sibling);
+                dq.front()->sibling = nullptr;
             }
             if (dq.back()->child != nullptr) {
                 dq.push_back(dq.back()->child);
-                dq[dq.size() - 2]->child = nullptr;
+                dq.front()->child = nullptr;
             }
-            delete dq.back();
-            dq.pop_back();
+            delete dq.front();
+            dq.pop_front();
         }
     }  // ~PairingPQ()
 
