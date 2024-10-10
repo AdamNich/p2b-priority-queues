@@ -75,6 +75,8 @@ OBJECTS     = $(SOURCES:%.cpp=%.o)
 
 # Default Flags
 CXXFLAGS = -std=c++17 -Wconversion -Wall -Werror -Wextra -pedantic
+CXXFLAGS += -fsanitize=address
+
 
 # make debug - will compile sources with $(CXXFLAGS) -g3 and -fsanitize
 #              flags also defines DEBUG and _GLIBCXX_DEBUG

@@ -93,16 +93,18 @@ void testPrimitiveOperations() {
 
     // TODO: Add more testing here!
     vector<int> v;
-    UnorderedPQ<int> upq1;
+    SortedPQ<int> upq1;
     PQ<int> pq1;
-    for (int i = 0; i < 100; ++i) {
+    for (uint32_t i = 0; i < 1000; ++i) {
         v.push_back(rand() % 100);
-        pq1.push(i);
-        upq1.push(i);
+        pq1.push(v[i]);
+        upq1.push(v[i]);
+        assert(pq1.top() == upq1.top());
+        assert(pq1.size() == upq1.size());
     }
     UnorderedPQ<int> upq2(v.begin(), v.end());
     PQ<int> pq2(v.begin(), v.end());
-    for (int i = 0; i < 100; ++i) {
+    for (int i = 0; i < 1000; ++i) {
         assert(pq1.top() == upq1.top());
         assert(pq1.size() == upq1.size());
         assert(pq2.top() == upq2.top());

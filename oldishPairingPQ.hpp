@@ -115,19 +115,19 @@ public:
         // TODO: Implement this function.
         deque<Node*> dq;
         if (root == nullptr) return;
-        dq.push_front(root);
-        Node *stupidtemp;
+        dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
-            stupidtemp = dq.front();
+            if (dq.front()->sibling != nullptr) {
+                dq.push_back(dq.front()->sibling);
+                dq.front()->sibling = nullptr;
+            }
+            if (dq.back()->child != nullptr) {
+                dq.push_back(dq.back()->child);
+                dq.front()->child = nullptr;
+            }
+            delete dq.front();
             dq.pop_front();
-            if (stupidtemp->sibling != nullptr) {
-                dq.push_front(stupidtemp->sibling);
-            }
-            if (stupidtemp->child != nullptr) {
-                dq.push_front(stupidtemp->child);
-            }
-            delete stupidtemp;
         }
     }  // ~PairingPQ()
 

@@ -26,7 +26,7 @@ public:
             : elt { val } {}
 
         explicit Node(const TYPE &val, Node* c, Node* s, Node* p)
-            : elt { val }, child(c), sibling(s), prev(p) {}
+            : elt { val }, child(c), sibling(s), parent(p) {}
 
         // Description: Allows access to the element at that Node's position.
         //              There are two versions, getElt() and a dereference
@@ -46,7 +46,7 @@ public:
         Node *child = nullptr;
         Node *sibling = nullptr;
         // TODO: Add and initialize one extra pointer (parent or previous) as desired.
-        Node *prev;
+        Node *parent;
     };  // Node
 
 
@@ -115,19 +115,19 @@ public:
         // TODO: Implement this function.
         deque<Node*> dq;
         if (root == nullptr) return;
-        dq.push_front(root);
-        Node *stupidtemp;
+        dq.push_back(root);
         while (!dq.empty()) {
             //maybe .front()? is it better?
-            stupidtemp = dq.front();
+            if (dq.front()->sibling != nullptr) {
+                dq.push_back(dq.front()->sibling);
+                dq.front()->sibling = nullptr;
+            }
+            if (dq.back()->child != nullptr) {
+                dq.push_back(dq.back()->child);
+                dq.front()->child = nullptr;
+            }
+            delete dq.front();
             dq.pop_front();
-            if (stupidtemp->sibling != nullptr) {
-                dq.push_front(stupidtemp->sibling);
-            }
-            if (stupidtemp->child != nullptr) {
-                dq.push_front(stupidtemp->child);
-            }
-            delete stupidtemp;
         }
     }  // ~PairingPQ()
 
@@ -158,7 +158,7 @@ public:
                 dq.push_back(dq.front()->sibling);
                 dq.front()->sibling = nullptr;
             }
-            dq.front()->prev = nullptr;
+            dq.front()->parent = nullptr;
             root = meld(dq.front(), root);
             dq.pop_front();
         }
@@ -190,14 +190,12 @@ public:
         root = dq[0];
         if (dq[0] == nullptr) return;
         // dq[0]->parent = nullptr;
-        Node *sibling = dq.back()->sibling;
-        while (sibling != nullptr) {
-            dq.push_back(sibling);
-            sibling = dq.back()->sibling;
+        while (dq.back()->sibling != nullptr) {
+            dq.push_back(dq.back()->sibling);
             dq.back()->sibling = nullptr;
-            dq.back()->prev = nullptr;
         }
         while (dq.size() > 1) {
+            dq[0]->parent = dq[1]->parent = nullptr;
             dq.push_back(meld(dq[0], dq[1]));
             dq.pop_front();
             dq.pop_front();
@@ -244,13 +242,16 @@ public:
         // TODO: Implement this function
         node->elt = new_value;
         if (node == root) return;
-        if (node->prev->child == node) {
-            node->prev->child = node->sibling;
-            if (node->sibling != nullptr) node->sibling->prev = node->prev;
+        Node *parent = node->parent;
+        node->parent = nullptr;
+        if (parent->child == node) {
+            parent->child = node->sibling;
         } else {
-            node->prev->sibling = node->sibling;
+            Node *leftSibling = parent->child;
+            while (leftSibling->sibling != node) leftSibling = leftSibling->sibling;
+            leftSibling->sibling = node->sibling;
         }
-        node->sibling = node->prev = nullptr;
+        node->sibling = nullptr;
         root = meld(node, root);
     }  // updateElt()
 
@@ -289,14 +290,12 @@ private:
     Node *meld(Node *pa, Node *pb) {
         if (this->compare(pa->elt, pb->elt)) {
             pa->sibling = pb->child;
-            if (pb->child != nullptr) pb->child->prev = pa;
-            pa->prev = pb;
+            pa->parent = pb;
             pb->child = pa;
             return pb;
         } else {
             pb->sibling = pa->child;
-            if (pa->child != nullptr) pa->child->prev = pb;
-            pb->prev = pa;
+            pb->parent = pa;
             pa->child = pb;
             return pa;
         }
