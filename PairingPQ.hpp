@@ -189,14 +189,17 @@ public:
         //just in case the root has no children, so the root becomes nullptr
         root = dq[0];
         if (dq[0] == nullptr) return;
-        // dq[0]->parent = nullptr;
-        Node *sibling = dq.back()->sibling;
-        while (sibling != nullptr) {
-            dq.push_back(sibling);
-            sibling = dq.back()->sibling;
-            dq.back()->sibling = nullptr;
-            dq.back()->prev = nullptr;
+        while (dq.back()->sibling != nullptr) {
+            Node *curr = dq.back();
+            dq.push_back(dq.back()->sibling);
+            curr->sibling = curr->prev = nullptr;
         }
+        // while (sibling != nullptr) {
+        //     dq.push_back(sibling);
+        //     sibling = dq.back()->sibling;
+        //     dq.back()->sibling = nullptr;
+        //     dq.back()->prev = nullptr;
+        // }
         while (dq.size() > 1) {
             dq.push_back(meld(dq[0], dq[1]));
             dq.pop_front();
@@ -244,7 +247,7 @@ public:
         // TODO: Implement this function
         node->elt = new_value;
         if (node == root) return;
-        if (node->prev->child == node) {
+        if (node->prev != nullptr && node->prev->child == node) {
             node->prev->child = node->sibling;
             if (node->sibling != nullptr) node->sibling->prev = node->prev;
         } else {
